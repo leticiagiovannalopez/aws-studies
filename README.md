@@ -2,6 +2,8 @@
 
 Painel interativo de estudos para a certificação **AWS Certified Cloud Practitioner (CLF-C02)**.
 
+🔗 **Acesse aqui:** [aws-studies.vercel.app](https://aws-studies.vercel.app)
+
 ## O que tem aqui
 
 - 📊 Peso de cada domínio da prova (Cloud Concepts, Security & Compliance, Technology & Services, Billing & Support)
@@ -11,7 +13,7 @@ Painel interativo de estudos para a certificação **AWS Certified Cloud Practit
 
 ## Como usar
 
-Abra o arquivo `aws-clf-c02-dashboard.html` no navegador, ou acesse a versão publicada no Vercel.
+Acesse o link publicado acima, ou abra o arquivo `index.html` localmente no navegador.
 
 ## Stack
 
