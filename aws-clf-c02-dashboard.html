@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CLF-C02 // Painel de Controle</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0f1a;
+    --panel:#111a2b;
+    --panel-2:#0d1524;
+    --line:#1f2c45;
+    --amber:#ffb020;
+    --cyan:#4fd1c5;
+    --red:#ff5470;
+    --green:#3ddc84;
+    --text:#eaf0ff;
+    --muted:#8b98b8;
+    --mono:'JetBrains Mono', monospace;
+    --disp:'Space Grotesk', sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(circle at 15% 0%, rgba(79,209,197,0.06), transparent 40%),
+      radial-gradient(circle at 90% 10%, rgba(255,176,32,0.06), transparent 40%),
+      var(--bg);
+    color:var(--text);
+    font-family:var(--mono);
+    -webkit-font-smoothing:antialiased;
+    padding-bottom:80px;
+  }
+  a{color:var(--cyan);}
+
+  /* ---------- HEADER ---------- */
+  header{
+    padding:28px 20px 20px;
+    border-bottom:1px solid var(--line);
+    position:relative;
+    overflow:hidden;
+  }
+  .eyebrow{
+    font-size:11px;
+    letter-spacing:.18em;
+    color:var(--cyan);
+    text-transform:uppercase;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .eyebrow::before{
+    content:'';
+    width:7px;height:7px;border-radius:50%;
+    background:var(--green);
+    box-shadow:0 0 8px var(--green);
+    animation:pulse 1.6s infinite ease-in-out;
+  }
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.3;}}
+  h1{
+    font-family:var(--disp);
+    font-size:clamp(28px,5vw,42px);
+    font-weight:700;
+    margin:8px 0 4px;
+    letter-spacing:-0.01em;
+  }
+  h1 span{color:var(--amber);}
+  .sub{color:var(--muted); font-size:13px; max-width:560px; line-height:1.5;}
+
+  /* ---------- WEIGHT GAUGES ---------- */
+  .gauges{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+    gap:14px;
+    margin-top:24px;
+  }
+  .gauge{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:14px 16px;
+  }
+  .gauge-top{
+    display:flex;justify-content:space-between;align-items:baseline;
+    margin-bottom:8px;
+  }
+  .gauge-label{font-size:11px;color:var(--muted);letter-spacing:.05em;text-transform:uppercase;}
+  .gauge-pct{font-family:var(--disp);font-size:20px;font-weight:700;}
+  .bar-track{height:6px;background:var(--panel-2);border-radius:4px;overflow:hidden;border:1px solid var(--line);}
+  .bar-fill{height:100%;border-radius:4px;}
+
+  main{max-width:1100px;margin:0 auto;padding:0 20px;}
+
+  section{margin-top:48px;}
+  .section-head{
+    display:flex;align-items:center;gap:10px;
+    margin-bottom:18px;
+  }
+  .section-head .idx{
+    font-family:var(--disp);font-weight:700;font-size:13px;
+    color:var(--bg);background:var(--amber);
+    padding:3px 8px;border-radius:5px;
+  }
+  .section-head h2{
+    font-family:var(--disp);font-size:20px;margin:0;font-weight:600;
+  }
+  .section-head .weight{
+    margin-left:auto;font-size:11px;color:var(--muted);
+    border:1px solid var(--line);padding:3px 10px;border-radius:20px;
+  }
+
+  /* ---------- DOMAIN GRID ---------- */
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
+    gap:14px;
+  }
+  .card{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:16px 18px;
+    transition:border-color .15s ease, transform .15s ease;
+  }
+  .card:hover{border-color:var(--cyan); transform:translateY(-2px);}
+  .card h3{
+    font-family:var(--disp);font-size:15px;margin:0 0 6px;
+    display:flex;align-items:center;gap:8px;
+  }
+  .card h3 .tag{
+    font-size:10px;color:var(--bg);background:var(--cyan);
+    padding:1px 6px;border-radius:4px;font-family:var(--mono);font-weight:700;
+  }
+  .card p{font-size:12.5px;color:var(--muted);margin:0 0 10px;line-height:1.5;}
+  .kw{display:flex;flex-wrap:wrap;gap:6px;}
+  .kw span{
+    font-size:11px;background:var(--panel-2);border:1px solid var(--line);
+    color:var(--amber);padding:3px 8px;border-radius:20px;
+  }
+
+  /* ---------- QUIZ ---------- */
+  .quiz-item{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:18px 20px;
+    margin-bottom:14px;
+  }
+  .quiz-q{
+    font-family:var(--disp);font-size:15px;font-weight:600;margin-bottom:14px;
+    display:flex;gap:10px;
+  }
+  .quiz-q .qn{color:var(--cyan);flex-shrink:0;}
+  .opts{display:grid;gap:8px;}
+  .opt{
+    display:flex;align-items:center;gap:10px;
+    text-align:left;
+    background:var(--panel-2);
+    border:1px solid var(--line);
+    color:var(--text);
+    padding:11px 14px;
+    border-radius:8px;
+    font-family:var(--mono);
+    font-size:13px;
+    cursor:pointer;
+    transition:border-color .12s ease, background .12s ease;
+  }
+  .opt:hover:not(.locked){border-color:var(--cyan);}
+  .opt:focus-visible{outline:2px solid var(--cyan); outline-offset:2px;}
+  .opt .letter{
+    width:20px;height:20px;border-radius:5px;background:var(--panel);
+    border:1px solid var(--line);
+    display:flex;align-items:center;justify-content:center;
+    font-size:11px;color:var(--muted);flex-shrink:0;
+  }
+  .opt.correct{border-color:var(--green); background:rgba(61,220,132,0.1);}
+  .opt.correct .letter{background:var(--green);color:#062;border-color:var(--green);}
+  .opt.wrong{border-color:var(--red); background:rgba(255,84,112,0.1);}
+  .opt.wrong .letter{background:var(--red);color:#300;border-color:var(--red);}
+  .opt.dim{opacity:.45;}
+
+  .explain{
+    max-height:0;
+    overflow:hidden;
+    transition:max-height .25s ease, margin-top .25s ease;
+    font-size:12.5px;
+    color:var(--muted);
+    line-height:1.6;
+    border-left:2px solid var(--line);
+    padding-left:0;
+  }
+  .explain.show{
+    max-height:300px;
+    margin-top:14px;
+    padding-left:14px;
+  }
+  .explain b{color:var(--text);}
+  .explain.ok{border-color:var(--green);}
+  .explain.bad{border-color:var(--red);}
+
+  .score-bar{
+    position:sticky; bottom:0; left:0; right:0;
+    background:var(--panel-2);
+    border-top:1px solid var(--line);
+    padding:12px 20px;
+    display:flex;align-items:center;justify-content:space-between;
+    font-size:12px;color:var(--muted);
+    margin-top:20px;
+    border-radius:10px 10px 0 0;
+  }
+  .score-bar b{color:var(--amber); font-family:var(--disp); font-size:16px;}
+  .reset-btn{
+    background:none;border:1px solid var(--line);color:var(--muted);
+    padding:6px 12px;border-radius:20px;font-family:var(--mono);font-size:11px;
+    cursor:pointer;
+  }
+  .reset-btn:hover{border-color:var(--cyan); color:var(--cyan);}
+
+  footer{
+    text-align:center;color:var(--muted);font-size:11px;
+    margin-top:60px;padding:20px;
+  }
+
+  @media (max-width:600px){
+    header{padding:22px 16px 16px;}
+    main{padding:0 16px;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">clf-c02 · aws certified cloud practitioner</div>
+  <h1>painel de <span>controle</span> — aws</h1>
+  <p class="sub">Conceitos-chave por domínio + simulado com correção instantânea. Clique numa opção do quiz pra ver se acertou e o porquê.</p>
+
+  <div class="gauges">
+    <div class="gauge">
+      <div class="gauge-top"><span class="gauge-label">Cloud Concepts</span><span class="gauge-pct">24%</span></div>
+      <div class="bar-track"><div class="bar-fill" style="width:24%;background:var(--cyan);"></div></div>
+    </div>
+    <div class="gauge">
+      <div class="gauge-top"><span class="gauge-label">Security & Compliance</span><span class="gauge-pct">30%</span></div>
+      <div class="bar-track"><div class="bar-fill" style="width:30%;background:var(--red);"></div></div>
+    </div>
+    <div class="gauge">
+      <div class="gauge-top"><span class="gauge-label">Technology & Services</span><span class="gauge-pct">34%</span></div>
+      <div class="bar-track"><div class="bar-fill" style="width:34%;background:var(--amber);"></div></div>
+    </div>
+    <div class="gauge">
+      <div class="gauge-top"><span class="gauge-label">Billing & Support</span><span class="gauge-pct">12%</span></div>
+      <div class="bar-track"><div class="bar-fill" style="width:12%;background:var(--green);"></div></div>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <!-- DOMAIN 1 -->
+  <section>
+    <div class="section-head">
+      <span class="idx">01</span>
+      <h2>Cloud Concepts</h2>
+      <span class="weight">24% da prova</span>
+    </div>
+    <div class="grid">
+      <div class="card">
+        <h3>Vantagens da nuvem <span class="tag">CORE</span></h3>
+        <p>Por que empresas migram pra nuvem em vez de data center próprio.</p>
+        <div class="kw"><span>CAPEX → OPEX</span><span>elasticidade</span><span>economia de escala</span><span>agilidade</span><span>global em minutos</span></div>
+      </div>
+      <div class="card">
+        <h3>Modelos de deployment</h3>
+        <p>As 3 formas de usar nuvem.</p>
+        <div class="kw"><span>Cloud pública</span><span>Híbrida</span><span>On-premises (privada)</span></div>
+      </div>
+      <div class="card">
+        <h3>Modelos de serviço</h3>
+        <p>Quanto você gerencia vs. quanto a AWS gerencia.</p>
+        <div class="kw"><span>IaaS = infra (EC2)</span><span>PaaS = plataforma (Elastic Beanstalk)</span><span>SaaS = software pronto</span></div>
+      </div>
+      <div class="card">
+        <h3>Well-Architected Framework <span class="tag">6 pilares</span></h3>
+        <p>Os pilares que guiam boas arquiteturas na AWS.</p>
+        <div class="kw"><span>Excelência operacional</span><span>Segurança</span><span>Confiabilidade</span><span>Eficiência de performance</span><span>Otimização de custos</span><span>Sustentabilidade</span></div>
+      </div>
+      <div class="card">
+        <h3>Regiões, AZs e Edge Locations</h3>
+        <p>A estrutura física global da AWS.</p>
+        <div class="kw"><span>Region = área geográfica</span><span>AZ = data center isolado</span><span>Edge Location = cache do CloudFront</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DOMAIN 2 -->
+  <section>
+    <div class="section-head">
+      <span class="idx">02</span>
+      <h2>Security & Compliance</h2>
+      <span class="weight">30% da prova</span>
+    </div>
+    <div class="grid">
+      <div class="card">
+        <h3>Shared Responsibility Model <span class="tag">CAI SEMPRE</span></h3>
+        <p>Onde termina a responsabilidade da AWS e começa a sua.</p>
+        <div class="kw"><span>AWS = segurança DA nuvem</span><span>Cliente = segurança NA nuvem</span><span>AWS cuida do hardware</span><span>Cliente cuida dos dados e acessos</span></div>
+      </div>
+      <div class="card">
+        <h3>IAM</h3>
+        <p>Controle de identidade e acesso.</p>
+        <div class="kw"><span>Users, Groups, Roles</span><span>Policies (JSON)</span><span>MFA</span><span>princípio do menor privilégio</span><span>nunca use o root pro dia a dia</span></div>
+      </div>
+      <div class="card">
+        <h3>Serviços de proteção</h3>
+        <p>Camadas de defesa gerenciadas.</p>
+        <div class="kw"><span>GuardDuty = detecção de ameaças</span><span>Shield = anti-DDoS</span><span>WAF = firewall de aplicação web</span><span>Macie = dados sensíveis</span></div>
+      </div>
+      <div class="card">
+        <h3>Compliance</h3>
+        <p>Onde consultar certificações e relatórios.</p>
+        <div class="kw"><span>AWS Artifact = relatórios de compliance</span><span>KMS = gestão de chaves de criptografia</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DOMAIN 3 -->
+  <section>
+    <div class="section-head">
+      <span class="idx">03</span>
+      <h2>Cloud Technology & Services</h2>
+      <span class="weight">34% da prova</span>
+    </div>
+    <div class="grid">
+      <div class="card">
+        <h3>Compute</h3>
+        <p>Onde seu código roda.</p>
+        <div class="kw"><span>EC2 = servidor virtual</span><span>Lambda = serverless, cobra por execução</span><span>Elastic Beanstalk = PaaS</span><span>ECS/EKS = containers</span></div>
+      </div>
+      <div class="card">
+        <h3>Storage <span class="tag">S3</span></h3>
+        <p>Classes de armazenamento por frequência de acesso.</p>
+        <div class="kw"><span>S3 Standard = acesso frequente</span><span>S3 IA = acesso infrequente</span><span>S3 Glacier = arquivo/backup barato</span><span>EBS = disco de um EC2</span><span>EFS = disco compartilhado</span></div>
+      </div>
+      <div class="card">
+        <h3>Banco de dados</h3>
+        <p>Relacional vs. não relacional.</p>
+        <div class="kw"><span>RDS = SQL gerenciado (MySQL, Postgres)</span><span>Aurora = RDS turbinado da AWS</span><span>DynamoDB = NoSQL, baixa latência</span></div>
+      </div>
+      <div class="card">
+        <h3>Networking</h3>
+        <p>Como tudo se conecta.</p>
+        <div class="kw"><span>VPC = sua rede privada isolada</span><span>Route 53 = DNS</span><span>CloudFront = CDN, cache nas bordas</span><span>Direct Connect = link físico dedicado</span></div>
+      </div>
+      <div class="card">
+        <h3>Monitoramento e gestão</h3>
+        <p>Observabilidade e automação.</p>
+        <div class="kw"><span>CloudWatch = métricas e alarmes</span><span>CloudTrail = log de quem fez o quê</span><span>AWS Config = auditoria de configuração</span></div>
+      </div>
+      <div class="card">
+        <h3>Mensageria e integração <span class="tag">cai pouco, mas cai</span></h3>
+        <p>Como serviços desacoplados conversam entre si.</p>
+        <div class="kw"><span>SQS = fila de mensagens (desacopla apps)</span><span>SNS = pub/sub, notifica vários assinantes</span><span>EventBridge = barramento de eventos</span></div>
+      </div>
+      <div class="card">
+        <h3>Security Groups vs. NACLs</h3>
+        <p>As duas camadas de firewall dentro da VPC.</p>
+        <div class="kw"><span>Security Group = firewall da instância, stateful</span><span>NACL = firewall da sub-rede, stateless</span><span>SG só permite (allow)</span><span>NACL permite e nega (allow/deny)</span></div>
+      </div>
+      <div class="card">
+        <h3>Criptografia</h3>
+        <p>Dado protegido em qual "estado".</p>
+        <div class="kw"><span>Em trânsito = viajando na rede (TLS/SSL)</span><span>Em repouso = parado no disco (KMS, S3 SSE)</span></div>
+      </div>
+      <div class="card">
+        <h3>Outros serviços de armazenamento</h3>
+        <p>Casos específicos de transferência e storage físico.</p>
+        <div class="kw"><span>Snowball = transferência física de dados em massa</span><span>Storage Gateway = ponte entre on-premises e a nuvem</span></div>
+      </div>
+      <div class="card">
+        <h3>Systems Manager</h3>
+        <p>Gestão operacional centralizada de recursos.</p>
+        <div class="kw"><span>Patch Manager</span><span>Session Manager = acesso sem SSH exposto</span><span>Parameter Store = configs e segredos</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DOMAIN 4 -->
+  <section>
+    <div class="section-head">
+      <span class="idx">04</span>
+      <h2>Billing, Pricing & Support</h2>
+      <span class="weight">12% da prova</span>
+    </div>
+    <div class="grid">
+      <div class="card">
+        <h3>Modelos de precificação</h3>
+        <p>Formas de pagar pelo compute.</p>
+        <div class="kw"><span>On-Demand = paga o que usar</span><span>Reserved = desconto por compromisso (1-3 anos)</span><span>Spot = capacidade ociosa, mais barato, pode ser interrompida</span><span>Savings Plans</span></div>
+      </div>
+      <div class="card">
+        <h3>Suporte e ferramentas de custo</h3>
+        <p>Como monitorar e reduzir gastos.</p>
+        <div class="kw"><span>Trusted Advisor = recomendações automáticas</span><span>Cost Explorer = visualizar gastos</span><span>Budgets = alertas de orçamento</span><span>Free Tier</span></div>
+      </div>
+      <div class="card">
+        <h3>Planos de suporte</h3>
+        <p>Do grátis ao TAM dedicado.</p>
+        <div class="kw"><span>Basic = grátis</span><span>Developer = e-mail</span><span>Business = 24/7, telefone</span><span>Enterprise = TAM dedicado</span></div>
+      </div>
+      <div class="card">
+        <h3>Organização de contas</h3>
+        <p>Gestão de múltiplas contas AWS.</p>
+        <div class="kw"><span>AWS Organizations</span><span>Consolidated Billing</span><span>Service Control Policies</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MIGRATION -->
+  <section>
+    <div class="section-head">
+      <span class="idx">05</span>
+      <h2>Estratégias de Migração</h2>
+      <span class="weight">os 6 Rs</span>
+    </div>
+    <div class="grid">
+      <div class="card">
+        <h3>Rehost <span class="tag">lift-and-shift</span></h3>
+        <p>Move a aplicação como está, sem mudar nada.</p>
+        <div class="kw"><span>mais rápido</span><span>menos otimizado</span></div>
+      </div>
+      <div class="card">
+        <h3>Replatform <span class="tag">lift-tinker-shift</span></h3>
+        <p>Pequenos ajustes de otimização durante a migração.</p>
+        <div class="kw"><span>ex: trocar banco on-premises por RDS</span></div>
+      </div>
+      <div class="card">
+        <h3>Repurchase <span class="tag">drop and shop</span></h3>
+        <p>Troca a solução atual por outra (geralmente SaaS).</p>
+        <div class="kw"><span>ex: sair de um CRM próprio e usar Salesforce</span></div>
+      </div>
+      <div class="card">
+        <h3>Refactor / Re-architect</h3>
+        <p>Reconstrói a aplicação usando recursos cloud-native.</p>
+        <div class="kw"><span>mais trabalho</span><span>mais benefício a longo prazo</span><span>ex: migrar pra microsserviços/serverless</span></div>
+      </div>
+      <div class="card">
+        <h3>Retire</h3>
+        <p>Desliga o que não é mais usado.</p>
+        <div class="kw"><span>reduz custo e superfície de manutenção</span></div>
+      </div>
+      <div class="card">
+        <h3>Retain</h3>
+        <p>Mantém como está, sem migrar (por enquanto).</p>
+        <div class="kw"><span>ex: sistema legado que ainda não compensa migrar</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- QUIZ -->
+  <section id="quiz-section">
+    <div class="section-head">
+      <span class="idx">Q</span>
+      <h2>Simulado</h2>
+      <span class="weight" id="progress-label">0/12 respondidas</span>
+    </div>
+    <div id="quiz-container"></div>
+  </section>
+
+</main>
+
+<div class="score-bar">
+  <span>Acertos: <b id="score-display">0</b> / <span id="total-display">12</span></span>
+  <button class="reset-btn" onclick="resetQuiz()">reiniciar simulado</button>
+</div>
+
+<footer>feito pra revisão da certificação AWS Cloud Practitioner (CLF-C02)</footer>
+
+<script>
+const questions = [
+  {
+    q: "No Shared Responsibility Model, de quem é a responsabilidade de configurar corretamente as permissões do IAM?",
+    opts: ["Da AWS, sempre", "Do cliente", "Depende do plano de suporte contratado", "Do provedor de internet"],
+    correct: 1,
+    why: "A AWS cuida da segurança <b>DA</b> nuvem (infraestrutura física, hardware, rede global). O cliente cuida da segurança <b>NA</b> nuvem: dados, gestão de identidade e acesso (IAM), configuração de firewall e criptografia dos próprios recursos."
+  },
+  {
+    q: "Qual serviço da AWS é serverless e cobra por execução de código, sem você gerenciar servidores?",
+    opts: ["EC2", "Lambda", "RDS", "Elastic Beanstalk"],
+    correct: 1,
+    why: "O <b>Lambda</b> executa código sob demanda em resposta a eventos, sem provisionar servidores — você paga apenas pelo tempo de execução. EC2 e Elastic Beanstalk ainda envolvem instâncias/servidores gerenciados em algum nível."
+  },
+  {
+    q: "Qual classe de armazenamento do S3 é a mais indicada para dados acessados raramente, mas que precisam de recuperação rápida quando necessário?",
+    opts: ["S3 Standard", "S3 Glacier Deep Archive", "S3 Standard-IA (Infrequent Access)", "S3 Intelligent-Tiering apenas"],
+    correct: 2,
+    why: "O <b>S3 Standard-IA</b> foi feito exatamente pra esse cenário: custo de armazenamento menor que o Standard, mas com recuperação rápida (milissegundos). O Glacier Deep Archive é pra arquivamento de longuíssimo prazo, com recuperação que leva horas."
+  },
+  {
+    q: "Qual modelo de precificação do EC2 oferece o menor custo, mas pode ser interrompido pela AWS a qualquer momento?",
+    opts: ["Reserved Instances", "On-Demand", "Spot Instances", "Savings Plans"],
+    correct: 2,
+    why: "As <b>Spot Instances</b> usam capacidade ociosa da AWS com desconto de até 90%, mas podem ser reivindicadas de volta pela AWS com pouco aviso — ideais para cargas tolerantes a interrupção, como processamento em lote."
+  },
+  {
+    q: "Quantos pilares tem o AWS Well-Architected Framework?",
+    opts: ["4", "5", "6", "7"],
+    correct: 2,
+    why: "São <b>6 pilares</b>: excelência operacional, segurança, confiabilidade, eficiência de performance, otimização de custos e sustentabilidade (adicionado mais recentemente)."
+  },
+  {
+    q: "Qual serviço funciona como uma CDN, entregando conteúdo com baixa latência a partir de localizações de borda (edge)?",
+    opts: ["Route 53", "CloudFront", "Direct Connect", "VPC"],
+    correct: 1,
+    why: "O <b>CloudFront</b> é o serviço de CDN da AWS: ele armazena cópias em cache do conteúdo nas Edge Locations, entregando dados mais rápido pro usuário final. Route 53 é DNS, não CDN."
+  },
+  {
+    q: "Qual plano de suporte da AWS é o único que inclui um Technical Account Manager (TAM) dedicado?",
+    opts: ["Basic", "Developer", "Business", "Enterprise"],
+    correct: 3,
+    why: "Apenas o plano <b>Enterprise</b> inclui um TAM dedicado, focado em ajudar a otimizar o uso da AWS. O Business já dá suporte 24/7 por telefone, chat e e-mail, mas sem TAM."
+  },
+  {
+    q: "Qual banco de dados é a melhor escolha para uma aplicação que precisa de baixíssima latência e um modelo de dados NoSQL flexível?",
+    opts: ["RDS", "DynamoDB", "Aurora", "Redshift"],
+    correct: 1,
+    why: "O <b>DynamoDB</b> é o banco NoSQL totalmente gerenciado da AWS, com latência de milissegundos em qualquer escala. RDS e Aurora são bancos relacionais (SQL); Redshift é voltado a data warehousing analítico."
+  },
+  {
+    q: "Qual serviço registra automaticamente todas as chamadas de API feitas na sua conta AWS, útil para auditoria?",
+    opts: ["CloudWatch", "CloudTrail", "Config", "Trusted Advisor"],
+    correct: 1,
+    why: "O <b>CloudTrail</b> registra quem fez o quê, quando e de onde — é o log de auditoria de ações na conta. O CloudWatch foca em métricas de performance e alarmes, não em log de ações administrativas."
+  },
+  {
+    q: "O que acontece com o custo do EC2 no modelo On-Demand se você desligar a instância?",
+    opts: ["Você continua pagando o valor cheio", "Você para de pagar pelo compute, mas pode continuar pagando storage (EBS)", "Você recebe reembolso automático do mês", "É obrigatório ter Reserved Instance pra desligar"],
+    correct: 1,
+    why: "No modelo <b>On-Demand</b> você paga só pelo tempo em que a instância está rodando. Ao parar (stop) a instância, o cobrança de compute cessa, mas o armazenamento em disco (EBS) associado continua sendo cobrado até você excluí-lo."
+  },
+  {
+    q: "Qual ferramenta dá recomendações automáticas sobre custo, performance, segurança e limites de serviço?",
+    opts: ["AWS Budgets", "Cost Explorer", "Trusted Advisor", "AWS Artifact"],
+    correct: 2,
+    why: "O <b>Trusted Advisor</b> analisa sua conta e sugere melhorias em 5 categorias: otimização de custos, performance, segurança, tolerância a falhas e limites de serviço. O Cost Explorer só visualiza gastos; não dá recomendações amplas."
+  },
+  {
+    q: "Uma empresa quer isolar logicamente seus recursos AWS numa rede virtual privada, com controle total sobre sub-redes e rotas. Qual serviço ela deve usar?",
+    opts: ["Route 53", "VPC", "CloudFront", "Direct Connect"],
+    correct: 1,
+    why: "A <b>VPC (Virtual Private Cloud)</b> é a rede virtual isolada dentro da AWS onde você define sub-redes, tabelas de rotas, gateways e regras de firewall (Security Groups/NACLs). Direct Connect é uma conexão física dedicada até a AWS, não a rede em si."
+  },
+  {
+    q: "Qual a principal diferença entre Security Group e Network ACL (NACL)?",
+    opts: ["Não há diferença, são sinônimos", "Security Group é stateful e age na instância; NACL é stateless e age na sub-rede", "NACL só permite tráfego, nunca nega", "Security Group age na sub-rede inteira, NACL só na instância"],
+    correct: 1,
+    why: "O <b>Security Group</b> é stateful (se a entrada é permitida, a resposta é automaticamente permitida) e protege a instância. A <b>NACL</b> é stateless (precisa de regra explícita pra entrada E saída) e protege a sub-rede inteira, podendo permitir ou negar tráfego."
+  },
+  {
+    q: "Uma aplicação precisa desacoplar dois serviços, garantindo que mensagens fiquem numa fila até serem processadas. Qual serviço usar?",
+    opts: ["SNS", "SQS", "CloudFront", "Route 53"],
+    correct: 1,
+    why: "O <b>SQS (Simple Queue Service)</b> é o serviço de filas da AWS: mensagens ficam guardadas até um consumidor processá-las, o que desacopla produtor e consumidor. O SNS é pub/sub — envia a vários assinantes ao mesmo tempo, não guarda em fila."
+  },
+  {
+    q: "Qual estratégia de migração (dos 6 Rs) significa mover a aplicação para a nuvem exatamente como ela é, sem nenhuma modificação?",
+    opts: ["Refactor", "Repurchase", "Rehost", "Retire"],
+    correct: 2,
+    why: "<b>Rehost</b> (lift-and-shift) é a migração mais rápida: move a aplicação como está pra nuvem, sem alterar a arquitetura. É o ponto de partida mais comum antes de otimizar depois."
+  },
+  {
+    q: "Dados sendo transmitidos entre o navegador do usuário e um servidor via HTTPS estão protegidos por qual tipo de criptografia?",
+    opts: ["Em repouso", "Em trânsito", "Nenhuma, HTTPS não criptografa", "Apenas no S3"],
+    correct: 1,
+    why: "Dados <b>em trânsito</b> são os que estão viajando pela rede (ex: TLS/SSL do HTTPS). Já a criptografia <b>em repouso</b> protege o dado parado, salvo em disco (como no S3 com SSE ou no EBS com KMS)."
+  }
+];
+
+let answered = new Array(questions.length).fill(false);
+let correctCount = 0;
+
+function renderQuiz(){
+  const container = document.getElementById('quiz-container');
+  container.innerHTML = '';
+  questions.forEach((item, qi) => {
+    const wrap = document.createElement('div');
+    wrap.className = 'quiz-item';
+
+    const qEl = document.createElement('div');
+    qEl.className = 'quiz-q';
+    qEl.innerHTML = `<span class="qn">${String(qi+1).padStart(2,'0')}</span><span>${item.q}</span>`;
+    wrap.appendChild(qEl);
+
+    const optsEl = document.createElement('div');
+    optsEl.className = 'opts';
+
+    item.opts.forEach((optText, oi) => {
+      const btn = document.createElement('button');
+      btn.className = 'opt';
+      btn.innerHTML = `<span class="letter">${String.fromCharCode(65+oi)}</span><span>${optText}</span>`;
+      btn.addEventListener('click', () => selectAnswer(qi, oi, wrap));
+      optsEl.appendChild(btn);
+    });
+
+    wrap.appendChild(optsEl);
+
+    const explainEl = document.createElement('div');
+    explainEl.className = 'explain';
+    explainEl.id = `explain-${qi}`;
+    explainEl.innerHTML = item.why;
+    wrap.appendChild(explainEl);
+
+    container.appendChild(wrap);
+  });
+  updateScore();
+}
+
+function selectAnswer(qi, oi, wrap){
+  if(answered[qi]) return;
+  answered[qi] = true;
+
+  const buttons = wrap.querySelectorAll('.opt');
+  const item = questions[qi];
+  const isCorrect = oi === item.correct;
+  if(isCorrect) correctCount++;
+
+  buttons.forEach((btn, idx) => {
+    btn.classList.add('locked');
+    btn.disabled = true;
+    if(idx === item.correct){
+      btn.classList.add('correct');
+    } else if(idx === oi){
+      btn.classList.add('wrong');
+    } else {
+      btn.classList.add('dim');
+    }
+  });
+
+  const explainEl = document.getElementById(`explain-${qi}`);
+  explainEl.classList.add('show', isCorrect ? 'ok' : 'bad');
+
+  updateScore();
+}
+
+function updateScore(){
+  document.getElementById('score-display').textContent = correctCount;
+  document.getElementById('total-display').textContent = questions.length;
+  const answeredCount = answered.filter(Boolean).length;
+  document.getElementById('progress-label').textContent = `${answeredCount}/${questions.length} respondidas`;
+}
+
+function resetQuiz(){
+  answered = new Array(questions.length).fill(false);
+  correctCount = 0;
+  renderQuiz();
+  document.getElementById('quiz-section').scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+renderQuiz();
+</script>
+
+</body>
+</html>
